@@ -13,7 +13,6 @@ import (
 	"github.com/Shopify/sarama"
 )
 
-type Listener func([]byte)
 type KafkaConnector struct {
 	Brokers []string
 	Config  *sarama.Config

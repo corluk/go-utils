@@ -10,6 +10,7 @@ import (
 )
 
 func main() {
+	go
 	var handler server.HandlerMap = server.HandlerMap{
 		Method: "GET",
 		Url:    "/api/test1",
