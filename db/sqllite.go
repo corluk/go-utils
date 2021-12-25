@@ -12,7 +12,7 @@ type DB struct {
 }
 
 var sqlliteinstance *DB = nil
-var sqliteDBName string 
+var sqliteDBName string
 
 func GetSqlLiteInstance() (*gorm.DB, error) {
 
@@ -26,7 +26,7 @@ func GetSqlLiteInstance() (*gorm.DB, error) {
 		if err != nil {
 			return nil, err
 		}
-		sqlliteinstance := &DB{}
+		sqlliteinstance = &DB{}
 		sqlliteinstance.SQLLite = instance
 
 	}

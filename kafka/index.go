@@ -18,9 +18,14 @@ type KafkaConnector struct {
 	Config  *sarama.Config
 }
 
+var brokers []string
+
+func SetBrokers(brokerlist []string) {
+	brokers = brokerlist
+}
+
 func Default() (*KafkaConnector, error) {
 
-	brokers := strings.Split(os.Getenv("KAFKA_URIS"), ",")
 	if len(brokers) < 1 {
 		return &KafkaConnector{}, errors.New("no kafka uri defined ")
 	}
@@ -93,6 +98,12 @@ func connectConsumer(brokersUrl []string) (sarama.Consumer, error) {
 	return conn, nil
 }
 */
+
+func (kafkaConnector *KafkaConnector) Subscribe(topic string, listener func([]byte), position int64) error {
+
+	return kafkaConnector.Consume(topic, listener, position)
+}
+
 func (kafkaConnector *KafkaConnector) Consume(topic string, listener func([]byte), position int64) error {
 
 	//worker, err := connectConsumer([]string{"localhost:9092"})
