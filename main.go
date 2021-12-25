@@ -3,14 +3,29 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 
+	"github.com/corluk/go-utils/db"
 	"github.com/corluk/go-utils/kafka"
 	"github.com/corluk/go-utils/server"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
+	"gorm.io/gorm"
 )
 
+type User struct {
+	Id   int
+	Name string
+}
+
 func main() {
-	go
+	godotenv.Load()
+	sqllite, err := db.NewSqlLite(os.Getenv("SQLLITE_DB"), &gorm.Config{})
+	if err != nil {
+		log.Fatalln("cannot create db")
+		return
+	}
+	sqllite.AutoMigrate(&User{})
 	var handler server.HandlerMap = server.HandlerMap{
 		Method: "GET",
 		Url:    "/api/test1",
