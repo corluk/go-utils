@@ -4,8 +4,7 @@ import (
 	"context"
 	"strings"
 
-	"github.com/Shopify/sarama"
-	"github.com/corluk/go-utils/kafka"
+	"github.com/corluk/go-utils/kafkaclient"
 	"github.com/corluk/go-utils/redisclient"
 	"github.com/gin-gonic/gin"
 )
@@ -13,7 +12,7 @@ import (
 type Server struct {
 	Router *gin.Engine
 	Redis  *redisclient.RedisClient
-	Kafka  *kafka.KafkaConnector
+	Kafka  *kafkaclient.KafkaConnector
 }
 type HandlerMap struct {
 	Method  string
@@ -63,10 +62,9 @@ func (server *Server) SetRedis(redisUri string, context context.Context) error {
 	return nil
 }
 
-func (server *Server) SetKafka(kafkaBrokers []string, config *sarama.Config) {
+func (server *Server) SetKafka(kafkaClient *kafkaclient.KafkaConnector) {
 
-	kafka := kafka.New(kafkaBrokers, config)
-	server.Kafka = kafka
+	server.Kafka = kafkaClient
 
 }
 

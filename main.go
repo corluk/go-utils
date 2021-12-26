@@ -1,26 +1,67 @@
 package main
 
 import (
-	"log"
-	"net/http"
-	"os"
+	"encoding/json"
+	"fmt"
+	"strings"
 
-	"github.com/corluk/go-utils/db"
-	"github.com/corluk/go-utils/kafka"
-	"github.com/corluk/go-utils/server"
-	"github.com/gin-gonic/gin"
+	"github.com/confluentinc/confluent-kafka-go/kafka"
+	"github.com/corluk/go-utils/kafkaclient"
+	"github.com/corluk/go-utils/utils"
 	"github.com/joho/godotenv"
-	"gorm.io/gorm"
 )
 
 type User struct {
 	Id   int
 	Name string
 }
+type TestMessage struct {
+	Value string
+}
 
 func main() {
 	godotenv.Load()
-	sqllite, err := db.NewSqlLite(os.Getenv("SQLLITE_DB"), &gorm.Config{})
+	brokers := "localhost:9092,localhost:9093,localhost:9094"
+	configConsumer := &kafka.ConfigMap{
+		"bootstrap.servers": brokers,
+		"group.id":          "group1",
+		"auto.offset.reset": "earliest",
+	}
+	configProducer := &kafka.ConfigMap{
+		"bootstrap.servers": brokers,
+		"client.id":         "client2",
+	}
+
+	kafkaclient.SetConsumerConfig(configConsumer)
+	kafkaclient.SetProducerConfig(configProducer)
+	kafkaClient := kafkaclient.GetInstance()
+
+	obj := new(TestMessage)
+	value := utils.RandomString(16)
+	obj.Value = value
+	/*
+		kafkaClient.Publish("randomvalue1", obj)
+		kafkaClient.Publish("randomvalue1", obj)
+		kafkaClient.Publish("randomvalue1", obj)
+	*/
+	kafkaClient.Subscribe(strings.Split("randomvalue1", ","), func(message []byte) error {
+		fmt.Println("received ")
+		var testMessage TestMessage
+		err := json.Unmarshal(message, &testMessage)
+		if err != nil {
+			return err
+		}
+
+		fmt.Printf("value is %s", testMessage.Value)
+		//log.Fatal("incoming message ")
+		//obj := incoming.(TestMessage)
+		//assert.Equal(t, obj.Value, value)
+		//fmt.Println(obj.Value)
+		//return errors.New("close connection ")
+		return nil
+	})
+
+	/* sqllite, err := db.NewSqlLite(os.Getenv("SQLLITE_DB"), &gorm.Config{})
 	if err != nil {
 		log.Fatalln("cannot create db")
 		return
@@ -52,5 +93,6 @@ func main() {
 	})
 
 	server.Router.Run(":2031")
+	*/
 
 }
